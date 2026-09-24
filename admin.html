@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Disha Pariwar — Admin Panel</title>
+  <style>
+    :root {
+      --red: #c0392b; --red-light: #fdf2f2; --red-mid: #e8b4b8;
+      --ink: #1a1a1a; --ink-mid: #555; --ink-soft: #888;
+      --cream: #fafaf7; --border: #e0ddd5;
+      --success: #27ae60; --success-bg: #eafaf1;
+      --warning: #e67e22; --warning-bg: #fef9ee;
+      --error: #c0392b; --error-bg: #fdf2f2;
+      --info: #2980b9; --info-bg: #eaf4fb;
+      --radius: 10px; --radius-sm: 6px;
+      --font: 'Segoe UI', sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--font); background: #f0ede8; color: var(--ink); min-height: 100vh; }
+
+    .header {
+      background: #1a3c5e; color: #fff; padding: 14px 24px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .header img { height: 36px; }
+    .header h1 { font-size: 18px; font-weight: 600; }
+    .header small { font-size: 12px; opacity: 0.7; margin-left: auto; }
+
+    .wrap { max-width: 900px; margin: 0 auto; padding: 24px 16px; }
+
+    /* Login */
+    .login-card {
+      background: #fff; border-radius: var(--radius); padding: 36px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08); max-width: 400px; margin: 60px auto;
+    }
+    .login-card h2 { font-size: 20px; margin-bottom: 20px; color: var(--ink); }
+
+    /* Search bar */
+    .search-bar {
+      background: #fff; border-radius: var(--radius); padding: 16px 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06); display: flex; gap: 10px; margin-bottom: 20px;
+    }
+    .search-bar input { flex: 1; border: 1.5px solid var(--border); border-radius: var(--radius-sm); padding: 10px 14px; font-size: 15px; font-family: var(--font); outline: none; }
+    .search-bar input:focus { border-color: #1a3c5e; }
+
+    /* App card */
+    .app-card { background: #fff; border-radius: var(--radius); box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin-bottom: 20px; overflow: hidden; }
+    .app-card__header { background: #1a3c5e; color: #fff; padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+    .app-card__header h3 { font-size: 16px; }
+    .app-card__body { padding: 20px; }
+
+    .info-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; margin-bottom: 20px; }
+    .info-item label { font-size: 11px; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 3px; }
+    .info-item span { font-size: 14px; font-weight: 500; color: var(--ink); }
+
+    .section-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--ink-soft); border-bottom: 1px solid var(--border); padding-bottom: 8px; margin: 20px 0 12px; }
+
+    /* Doc list */
+    .doc-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border); }
+    .doc-row:last-child { border-bottom: none; }
+    .doc-row .doc-name { flex: 1; font-size: 13px; }
+    .doc-row .doc-link { font-size: 12px; color: var(--info); text-decoration: none; }
+    .doc-row .doc-link:hover { text-decoration: underline; }
+    .doc-badge { font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 600; white-space: nowrap; }
+    .doc-badge.uploaded { background: var(--success-bg); color: var(--success); }
+    .doc-badge.missing { background: #f5f5f5; color: var(--ink-soft); }
+
+    /* Update form */
+    .update-form { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 14px; }
+    .field { display: flex; flex-direction: column; gap: 5px; }
+    .field label { font-size: 12px; font-weight: 600; color: var(--ink-mid); }
+    .field select, .field input[type="text"], .field input[type="date"], .field input[type="number"], .field textarea {
+      border: 1.5px solid var(--border); border-radius: var(--radius-sm); padding: 8px 10px;
+      font-size: 13px; font-family: var(--font); outline: none; background: #fff;
+    }
+    .field select:focus, .field input:focus, .field textarea:focus { border-color: #1a3c5e; }
+    .field textarea { resize: vertical; min-height: 70px; grid-column: 1/-1; }
+    .field.full { grid-column: 1/-1; }
+
+    .btn { padding: 10px 22px; border: none; border-radius: var(--radius-sm); font-size: 14px; font-weight: 600; cursor: pointer; font-family: var(--font); transition: opacity .15s; }
+    .btn:hover { opacity: .85; }
+    .btn-primary { background: #1a3c5e; color: #fff; }
+    .btn-red { background: var(--red); color: #fff; }
+    .btn-ghost { background: transparent; color: var(--ink-mid); border: 1.5px solid var(--border); }
+
+    .alert { padding: 10px 14px; border-radius: var(--radius-sm); font-size: 13px; margin-bottom: 14px; display: flex; gap: 8px; align-items: flex-start; }
+    .alert-success { background: var(--success-bg); color: var(--success); }
+    .alert-error { background: var(--error-bg); color: var(--error); }
+    .alert-info { background: var(--info-bg); color: var(--info); }
+
+    .status-badge { font-size: 12px; padding: 3px 10px; border-radius: 20px; font-weight: 600; }
+    .stage-tag { background: var(--info-bg); color: var(--info); }
+    .decision-approved { background: var(--success-bg); color: var(--success); }
+    .decision-rejected { background: var(--error-bg); color: var(--error); }
+    .decision-pending { background: var(--warning-bg); color: var(--warning); }
+
+    .spinner { display: inline-block; width: 18px; height: 18px; border: 2px solid #ccc; border-top-color: #1a3c5e; border-radius: 50%; animation: spin .7s linear infinite; vertical-align: middle; margin-right: 6px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    #login-section { display: block; }
+    #main-section { display: none; }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <img src="assets/logo.png" onerror="this.style.display='none'">
+  <h1>Disha Pariwar — Admin Panel</h1>
+  <small id="admin-user-label"></small>
+</div>
+
+<!-- LOGIN -->
+<div id="login-section">
+  <div class="login-card">
+    <h2>🔐 Admin Login</h2>
+    <div id="login-err" class="alert alert-error" style="display:none;"></div>
+    <div class="field" style="margin-bottom:14px;">
+      <label>GAS Backend URL</label>
+      <input type="text" id="gas-url" placeholder="https://script.google.com/macros/s/.../exec" style="font-size:12px;">
+    </div>
+    <div class="field" style="margin-bottom:20px;">
+      <label>Admin Password</label>
+      <input type="password" id="admin-pwd" placeholder="Enter admin password">
+    </div>
+    <button class="btn btn-primary" onclick="doLogin()" style="width:100%;">Login →</button>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div id="main-section">
+  <div class="wrap">
+
+    <div style="margin-bottom:20px; display:flex; gap:10px;">
+      <button id="btn-tab-search" class="btn btn-primary" onclick="switchTab('search')">🔍 Search Apps</button>
+      <button id="btn-tab-storage" class="btn btn-ghost" onclick="switchTab('storage')">🧹 Drive Cleanup</button>
+      <button id="btn-tab-metrics" class="btn btn-ghost" onclick="switchTab('metrics')">📊 Dashboard</button>
+      <button id="btn-tab-window" class="btn btn-ghost" onclick="switchTab('window')">🪟 App Window</button>
+      <button id="btn-tab-export" class="btn btn-ghost" onclick="switchTab('export')">⬇️ Export CSV</button>
+      <button class="btn btn-ghost" onclick="doLogout()" style="margin-left:auto;">Logout</button>
+    </div>
+
+    <!-- SEARCH TAB -->
+    <div id="tab-search">
+      <div class="search-bar">
+        <input type="text" id="search-input" placeholder="Search by serial number (DP/2026-27/001), mobile number, or student name" onkeydown="if(event.key==='Enter')doSearch()">
+        <button class="btn btn-primary" onclick="doSearch()">🔍 Search</button>
+      </div>
+      <div id="search-status"></div>
+      <div id="results-area"></div>
+    </div>
+
+    <!-- STORAGE TAB -->
+    <div id="tab-storage" style="display:none;">
+      <div class="app-card">
+        <div class="app-card__header" style="background:#c0392b;">
+          <h3>🧹 Drive Storage Cleanup</h3>
+        </div>
+        <div class="app-card__body">
+          <p style="font-size:14px; color:var(--ink-mid); margin-bottom:16px;">
+            Scan for Google Drive folders belonging to students marked as <strong>Rejected</strong> or <strong>Withdrawn</strong>. 
+            Permanently deleting these folders frees up NGO storage space. <br>
+            <em>Note: The Google Sheet records are kept safe, only the uploaded Drive files are deleted.</em>
+          </p>
+          <button class="btn btn-primary" onclick="scanDriveStorage()">🔍 Scan for Rejected Folders</button>
+          
+          <div id="storage-status" style="margin-top:16px;"></div>
+          
+          <!-- Results Table -->
+          <div id="storage-results" style="display:none; margin-top:20px;">
+            <div style="max-height: 400px; overflow-y:auto; border:1px solid var(--border); border-radius:var(--radius-sm); margin-bottom:16px;">
+              <table style="width:100%; border-collapse:collapse; font-size:13px; text-align:left;">
+                <thead style="background:var(--cream); position:sticky; top:0;">
+                  <tr>
+                    <th style="padding:10px; border-bottom:1px solid var(--border);">Serial Number</th>
+                    <th style="padding:10px; border-bottom:1px solid var(--border);">Name</th>
+                    <th style="padding:10px; border-bottom:1px solid var(--border);">Status</th>
+                    <th style="padding:10px; border-bottom:1px solid var(--border);">Folder Link</th>
+                  </tr>
+                </thead>
+                <tbody id="storage-table-body">
+                </tbody>
+              </table>
+            </div>
+
+            <div style="background:var(--error-bg); padding:16px; border-radius:var(--radius-sm); border:1px solid #F5B5B0;">
+              <p style="color:var(--error); font-weight:600; font-size:14px; margin-bottom:10px;">⚠️ Danger Zone</p>
+              <p style="font-size:13px; color:var(--error); margin-bottom:12px;">You are about to permanently trash <strong id="storage-count">0</strong> folders. Type <strong>DELETE</strong> below to confirm.</p>
+              <input type="text" id="delete-confirm-input" placeholder="Type DELETE here" style="border:1.5px solid #F5B5B0; border-radius:4px; padding:8px 12px; font-size:13px; outline:none; margin-right:10px;">
+              <button class="btn btn-red" onclick="executeDriveCleanup()">🗑️ Delete All Folders</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: METRICS DASHBOARD -->
+    <div id="tab-metrics" style="display:none;">
+      <div class="card">
+        <h3>📊 Application Dashboard</h3>
+        <button class="btn btn-primary" onclick="loadMetrics()">🔄 Refresh</button>
+        <div id="metrics-output" style="margin-top:16px;"></div>
+      </div>
+    </div>
+
+    <!-- TAB: APPLICATION WINDOW TOGGLE -->
+    <div id="tab-window" style="display:none;">
+      <div class="card">
+        <h3>🪟 Application Window Control</h3>
+        <p>Controls whether the portal accepts new applications. Change takes effect immediately — no redeploy needed.</p>
+        <p><strong>Current status:</strong> <span id="window-status-badge">Loading…</span></p>
+        <div style="display:flex;gap:12px;margin-top:16px;">
+          <button class="btn btn-primary" onclick="setWindowStatus('true')">✅ Open Window</button>
+          <button class="btn btn-red" onclick="setWindowStatus('false')">🚫 Close Window</button>
+        </div>
+        <div id="window-status-msg" style="margin-top:12px;"></div>
+        <hr style="margin:24px 0;">
+        <h4>Window Dates (shown to applicants)</h4>
+        <input type="text" id="window-dates-input" placeholder="e.g. June 25 – July 31, 2026" style="width:100%;max-width:400px;padding:8px;border:1px solid #ccc;border-radius:6px;font-size:14px;">
+        <button class="btn btn-primary" onclick="setWindowDates()" style="margin-top:8px;">💾 Save Dates</button>
+        <div id="window-dates-msg" style="margin-top:8px;"></div>
+      </div>
+    </div>
+
+    <!-- TAB: CSV EXPORT -->
+    <div id="tab-export" style="display:none;">
+      <div class="card">
+        <h3>⬇️ Export Applications as CSV</h3>
+        <p>Exports all application data from Google Sheets to a CSV file you can open in Excel or Sheets.</p>
+        <div style="margin:12px 0;">
+          <label><strong>Filter by status (optional):</strong></label><br>
+          <select id="export-status-filter" style="padding:8px;border:1px solid #ccc;border-radius:6px;margin-top:6px;">
+            <option value="">All applications</option>
+            <option value="Submitted">Submitted</option>
+            <option value="Under Review">Under Review</option>
+            <option value="Shortlisted">Shortlisted</option>
+            <option value="Selected">Selected</option>
+            <option value="Rejected">Rejected</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" onclick="exportCSV()">⬇️ Download CSV</button>
+        <div id="export-msg" style="margin-top:10px;"></div>
+      </div>
+    </div>
+
+
+  let GAS_URL = '';
+  let ADMIN_PWD = '';
+
+  // ── Login ──
+  async function doLogin() {
+    const url = document.getElementById('gas-url').value.trim();
+    const pwd = document.getElementById('admin-pwd').value.trim();
+    const errEl = document.getElementById('login-err');
+    errEl.style.display = 'none';
+
+    if (!url || !pwd) { errEl.textContent = 'Both fields required.'; errEl.style.display = 'flex'; return; }
+
+    // Test credentials with a dummy search
+    try {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ action: 'admin_get', query: 'TEST_LOGIN_CHECK', admin_password: pwd })
+      });
+      const data = await res.json();
+      if (data.error === 'Unauthorized.') {
+        errEl.textContent = 'Wrong password.'; errEl.style.display = 'flex'; return;
+      }
+      // 404 "No application found" is fine — means auth passed
+      GAS_URL = url; ADMIN_PWD = pwd;
+      sessionStorage.setItem('dp_admin_url', url);
+      sessionStorage.setItem('dp_admin_pwd', pwd);
+      document.getElementById('login-section').style.display = 'none';
+      document.getElementById('main-section').style.display = 'block';
+    } catch(e) {
+      errEl.textContent = 'Could not reach backend: ' + e.message; errEl.style.display = 'flex';
+    }
+  }
+
+  function doLogout() {
+    sessionStorage.clear();
+    document.getElementById('login-section').style.display = 'block';
+    document.getElementById('main-section').style.display = 'none';
+    document.getElementById('results-area').innerHTML = '';
+  }
+
+  // Auto-restore session
+  window.addEventListener('load', () => {
+    const url = sessionStorage.getItem('dp_admin_url');
+    const pwd = sessionStorage.getItem('dp_admin_pwd');
+    if (url && pwd) {
+      GAS_URL = url; ADMIN_PWD = pwd;
+      document.getElementById('gas-url').value = url;
+      document.getElementById('admin-pwd').value = pwd;
+      document.getElementById('login-section').style.display = 'none';
+      document.getElementById('main-section').style.display = 'block';
+    }
+  });
+
+  // ── Tabs ──
+  const ALL_TABS = ['search','storage','metrics','window','export'];
+
+  function switchTab(tab) {
+    ALL_TABS.forEach(t => {
+      document.getElementById('tab-'+t).style.display = t === tab ? 'block' : 'none';
+      const btn = document.getElementById('btn-tab-'+t);
+      if (btn) btn.className = t === tab ? 'btn btn-primary' : 'btn btn-ghost';
+    });
+    if (tab === 'metrics') loadMetrics();
+    if (tab === 'window') loadWindowStatus();
+  }
+
+  // ── Metrics Dashboard ──
+  async function loadMetrics() {
+    const el = document.getElementById('metrics-output');
+    el.innerHTML = '<p>⏳ Loading…</p>';
+    try {
+      const res = await fetch(GAS_URL, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'admin_get', query: '*', admin_password: ADMIN_PWD })
+      });
+      const data = await res.json();
+      const apps = data.data || data.applications || [];
+      if (!apps.length) { el.innerHTML = '<p>No applications found.</p>'; return; }
+
+      const byStatus = {}, byStage = {}, byTrack = {};
+      let totalScholarship = 0;
+      apps.forEach(a => {
+        const s = a.status || 'Unknown';
+        byStatus[s] = (byStatus[s]||0) + 1;
+        const st = 'Stage ' + (a.stage || '?');
+        byStage[st] = (byStage[st]||0) + 1;
+        const tr = a.track || '?';
+        byTrack[tr] = (byTrack[tr]||0) + 1;
+        if (a.scholarship_amount) totalScholarship += Number(a.scholarship_amount) || 0;
+      });
+
+      const tbl = (obj, title) => `<div style="flex:1;min-width:160px;">
+        <strong>${title}</strong>
+        <table style="width:100%;margin-top:8px;border-collapse:collapse;">
+          ${Object.entries(obj).map(([k,v]) => `<tr>
+            <td style="padding:4px 8px;border:1px solid #e0e0e0;">${k}</td>
+            <td style="padding:4px 8px;border:1px solid #e0e0e0;text-align:right;font-weight:600;">${v}</td>
+          </tr>`).join('')}
+        </table></div>`;
+
+      el.innerHTML = `
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:16px;margin-bottom:20px;">
+          <div style="background:#f0f4ff;border-radius:8px;padding:16px;text-align:center;">
+            <div style="font-size:28px;font-weight:700;">${apps.length}</div>
+            <div style="color:#666;font-size:13px;">Total Applications</div>
+          </div>
+          <div style="background:#f0fff4;border-radius:8px;padding:16px;text-align:center;">
+            <div style="font-size:28px;font-weight:700;">${byStatus['Selected']||byStatus['Approved']||0}</div>
+            <div style="color:#666;font-size:13px;">Selected</div>
+          </div>
+          <div style="background:#fffbf0;border-radius:8px;padding:16px;text-align:center;">
+            <div style="font-size:28px;font-weight:700;">${byStatus['Shortlisted']||0}</div>
+            <div style="color:#666;font-size:13px;">Shortlisted</div>
+          </div>
+          ${totalScholarship ? `<div style="background:#f9f0ff;border-radius:8px;padding:16px;text-align:center;">
+            <div style="font-size:22px;font-weight:700;">₹${totalScholarship.toLocaleString('en-IN')}</div>
+            <div style="color:#666;font-size:13px;">Total Sanctioned</div>
+          </div>` : ''}
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:20px;">
+          ${tbl(byStatus,'By Status')}
+          ${tbl(byStage,'By Stage')}
+          ${Object.keys(byTrack).length > 1 ? tbl(byTrack,'By Track') : ''}
+        </div>`;
+    } catch(e) { el.innerHTML = '<div class="alert alert-error">Error: ' + e.message + '</div>'; }
+  }
+
+  // ── Window Toggle ──
+  async function loadWindowStatus() {
+    const badge = document.getElementById('window-status-badge');
+    try {
+      const res = await fetch(GAS_URL, { method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ action:'get_window_status' }) });
+      const data = await res.json();
+      const open = data.open === true || data.open === 'true';
+      badge.innerHTML = open
+        ? '<span style="color:#198754;font-weight:700;">✅ OPEN — Applications accepted</span>'
+        : '<span style="color:#dc3545;font-weight:700;">🚫 CLOSED — Not accepting applications</span>';
+    } catch(e) { badge.textContent = 'Error loading status'; }
+  }
+
+  async function setWindowStatus(val) {
+    const msg = document.getElementById('window-status-msg');
+    msg.textContent = '⏳ Updating…';
+    try {
+      const res = await fetch(GAS_URL, { method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ action:'admin_config_set', config_key:'WINDOW_OPEN', config_value: val, admin_password: ADMIN_PWD }) });
+      const data = await res.json();
+      msg.innerHTML = data.success
+        ? (val === 'true'
+          ? '<div class="alert alert-success">✅ Application window is now OPEN.</div>'
+          : '<div class="alert alert-error">🚫 Application window is now CLOSED.</div>')
+        : `<div class="alert alert-error">Error: ${data.error}</div>`;
+      loadWindowStatus();
+    } catch(e) { msg.textContent = 'Error: ' + e.message; }
+  }
+
+  async function setWindowDates() {
+    const dates = document.getElementById('window-dates-input').value.trim();
+    const msg   = document.getElementById('window-dates-msg');
+    if (!dates) { msg.textContent = 'Enter dates first.'; return; }
+    msg.innerHTML = `<div class="alert alert-success">✅ Go to Google Sheets → Config tab → update WINDOW_DATES to: <strong>${dates}</strong></div>`;
+  }
+
+  // ── CSV Export ──
+  async function exportCSV() {
+    const msg = document.getElementById('export-msg');
+    const filterStatus = document.getElementById('export-status-filter').value;
+    msg.textContent = '⏳ Fetching data…';
+    try {
+      const res = await fetch(GAS_URL, { method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ action:'admin_get', query: filterStatus || '*', admin_password: ADMIN_PWD }) });
+      const data = await res.json();
+      let apps = data.data || data.applications || [];
+      if (filterStatus) apps = apps.filter(a => (a.status||'') === filterStatus);
+      if (!apps.length) { msg.textContent = 'No applications found.'; return; }
+
+      const COLS = ['serial_number','name','mobile','email','course','college','district',
+        'category','family_income','fee_total','scholarship_requested','scholarship_amount',
+        'status','stage','track','decision','submitted_at','assigned_reviewer','notes'];
+      const escape = v => '"' + String(v||'').replace(/"/g,'""') + '"';
+      const csv = [COLS.join(','), ...apps.map(a => COLS.map(c => escape(a[c])).join(','))].join('\n');
+
+      const blob = new Blob(['\uFEFF'+csv], { type:'text/csv;charset=utf-8;' });
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement('a');
+      a.href = url; a.download = `disha_applications_${new Date().toISOString().slice(0,10)}.csv`;
+      a.click(); URL.revokeObjectURL(url);
+      msg.innerHTML = `<div class="alert alert-success">✅ Downloaded ${apps.length} applications as CSV.</div>`;
+    } catch(e) { msg.textContent = 'Error: ' + e.message; }
+  }
+
+  // ── Search ──
+  async function doSearch() {
+    const q = document.getElementById('search-input').value.trim();
+    if (!q) return;
+    const statusEl = document.getElementById('search-status');
+    const resultsEl = document.getElementById('results-area');
+    statusEl.innerHTML = '<div class="alert alert-info"><span class="spinner"></span> Searching...</div>';
+    resultsEl.innerHTML = '';
+    try {
+      const res = await fetch(GAS_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ action: 'admin_get', query: q, admin_password: ADMIN_PWD })
+      });
+      const data = await res.json();
+      statusEl.innerHTML = '';
+      if (!data.success) { statusEl.innerHTML = '<div class="alert alert-error">❌ ' + data.error + '</div>'; return; }
+      .( data.data || data.applications || []).forEach(app => resultsEl.appendChild(buildAppCard(app)));
+    } catch(e) {
+      statusEl.innerHTML = '<div class="alert alert-error">❌ Network error: ' + e.message + '</div>';
+    }
+  }
+
+  // ── Build application card ──
+  function buildAppCard(app) {
+    const card = document.createElement('div');
+    card.className = 'app-card';
+    card.id = 'card-' + app.serial_number.replace(/\//g, '-');
+
+    const decisionClass = app.decision === 'Approved' || app.decision === 'मंजूर' ? 'decision-approved'
+      : app.decision === 'Rejected' || app.decision === 'नाकारले' ? 'decision-rejected' : 'decision-pending';
+
+    card.innerHTML = `
+      <div class="app-card__header">
+        <h3>📄 ${app.serial_number} — ${app.name || '—'}</h3>
+        <span class="status-badge stage-tag">${app.stage || 'Stage unknown'}</span>
+        ${app.decision ? `<span class="status-badge ${decisionClass}">${app.decision}</span>` : ''}
+      </div>
+      <div class="app-card__body">
+        <div id="msg-${app.serial_number.replace(/\//g,'-')}"></div>
+
+        <div class="info-grid">
+          <div class="info-item"><label>Mobile</label><span>${app.mobile || '—'}</span></div>
+          <div class="info-item"><label>Email</label><span>${app.email || '—'}</span></div>
+          <div class="info-item"><label>College</label><span>${app.college || '—'}</span></div>
+          <div class="info-item"><label>Course</label><span>${app.course || '—'}</span></div>
+          <div class="info-item"><label>Submission Date</label><span>${app.submitted_at || '—'}</span></div>
+          <div class="info-item"><label>Physical Form Received</label><span>${app.physical_form_received || 'नाही'}</span></div>
+          <div class="info-item"><label>Documents Verified</label><span>${app.documents_verified || 'नाही'}</span></div>
+          <div class="info-item"><label>Scholarship Amount</label><span>${app.scholarship_amount ? '₹' + app.scholarship_amount : '—'}</span></div>
+          <div class="info-item"><label>Assigned Reviewer</label><span>${app.assigned_reviewer || '—'}</span></div>
+        </div>
+        ${app.doc_explanations ? `
+        <div class="section-title">📝 Student's Document Explanations</div>
+        <div class="alert alert-info" style="font-size:13px;">${formatDocExplanations(app.doc_explanations)}</div>` : ''}
+
+        <div class="section-title">📁 Uploaded Documents (${(app.doc_links||[]).length})</div>
+        ${(app.doc_links||[]).length === 0
+          ? '<p style="color:var(--ink-soft);font-size:13px;">No documents uploaded yet.</p>'
+          : (app.doc_links||[]).map(d => `
+              <div class="doc-row">
+                <span class="doc-badge uploaded">✅ Uploaded</span>
+                <span class="doc-name">${d.name}</span>
+                <a href="${d.url}" target="_blank" class="doc-link">View in Drive →</a>
+              </div>`).join('')
+        }
+        ${app.drive_folder_link ? `<a href="${app.drive_folder_link}" target="_blank" class="doc-link" style="display:block;margin-top:8px;font-size:12px;">📂 Open Drive Folder</a>` : ''}
+
+        <div class="section-title">✏️ Update Application</div>
+        <div class="update-form">
+
+          <div class="field">
+            <label>Physical Form Received</label>
+            <select id="f-phys-${app.serial_number.replace(/\//g,'-')}">
+              <option value="">— no change —</option>
+              <option value="होय" ${app.physical_form_received==='होय'?'selected':''}>होय (Yes)</option>
+              <option value="नाही" ${app.physical_form_received==='नाही'?'selected':''}>नाही (No)</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label>Physical Form Received Date</label>
+            <input type="date" id="f-physdate-${app.serial_number.replace(/\//g,'-')}" value="${toInputDate(app.physical_form_received_date)}">
+          </div>
+
+          <div class="field">
+            <label>Documents Verified</label>
+            <select id="f-docver-${app.serial_number.replace(/\//g,'-')}">
+              <option value="">— no change —</option>
+              <option value="होय" ${app.documents_verified==='होय'?'selected':''}>होय (Yes)</option>
+              <option value="नाही" ${app.documents_verified==='नाही'?'selected':''}>नाही (No)</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label>Documents Verified Date</label>
+            <input type="date" id="f-docverdate-${app.serial_number.replace(/\//g,'-')}" value="${toInputDate(app.documents_verified_date)}">
+          </div>
+
+          <div class="field">
+            <label>Current Stage</label>
+            <select id="f-stage-${app.serial_number.replace(/\//g,'-')}">
+              <option value="">— no change —</option>
+              <option>Stage 1 — Submitted</option>
+              <option>Stage 2 — Document screening</option>
+              <option>Stage 3 — Physical form check</option>
+              <option>Stage 4 — Shortlisting</option>
+              <option>Stage 5 — Interview</option>
+              <option>Stage 6 — Final Decision</option>
+              <option>Track B — Await admission proof within 15 days</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label>Stage 4 Decision</label>
+            <select id="f-s4-${app.serial_number.replace(/\//g,'-')}">
+              <option value="">— no change —</option>
+              <option>Shortlist for Interview</option>
+              <option>Hold</option>
+              <option>Reject</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label>Stage 4 Reason</label>
+            <input type="text" id="f-s4reason-${app.serial_number.replace(/\//g,'-')}" placeholder="Optional reason" value="${app.stage4_reason||''}">
+          </div>
+
+          <div class="field">
+            <label>Interview Date</label>
+            <input type="date" id="f-idate-${app.serial_number.replace(/\//g,'-')}" value="${toInputDate(app.interview_date)}">
+          </div>
+
+          <div class="field">
+            <label>Interview Mode</label>
+            <select id="f-imode-${app.serial_number.replace(/\//g,'-')}">
+              <option value="">— no change —</option>
+              <option>In-person</option>
+              <option>Video call</option>
+              <option>Phone</option>
+            </select>
+          </div>
+
+          <div class="field full">
+            <label>Interview Notes</label>
+            <textarea id="f-inotes-${app.serial_number.replace(/\//g,'-')}" placeholder="Notes from the interview...">${app.interview_notes||''}</textarea>
+          </div>
+
+          <div class="field">
+            <label>Assigned Reviewer</label>
+            <input type="text" id="f-reviewer-${app.serial_number.replace(/\//g,'-')}" placeholder="Reviewer name" value="${app.assigned_reviewer||''}">
+          </div>
+
+          <div class="field">
+            <label>Office Visit Window Start</label>
+            <input type="date" id="f-ovstart-${app.serial_number.replace(/\//g,'-')}" value="${toInputDate(app.office_visit_start)}">
+          </div>
+
+          <div class="field">
+            <label>Office Visit Window End</label>
+            <input type="date" id="f-ovend-${app.serial_number.replace(/\//g,'-')}" value="${toInputDate(app.office_visit_end)}">
+          </div>
+
+          <div class="field">
+            <label>Final Decision</label>
+            <select id="f-decision-${app.serial_number.replace(/\//g,'-')}">
+              <option value="">— no change —</option>
+              <option>Approved</option>
+              <option>Rejected</option>
+              <option>Waitlist</option>
+              <option>Withdrawn</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label>Decision Date</label>
+            <input type="date" id="f-ddate-${app.serial_number.replace(/\//g,'-')}" value="${toInputDate(app.decision_date)}">
+          </div>
+
+          <div class="field">
+            <label>Scholarship Amount (₹)</label>
+            <input type="number" id="f-amount-${app.serial_number.replace(/\//g,'-')}" placeholder="e.g. 50000" value="${app.scholarship_amount||''}">
+          </div>
+
+          <div class="field">
+            <label>Application Status</label>
+            <select id="f-appstatus-${app.serial_number.replace(/\//g,'-')}">
+              <option value="">— no change —</option>
+              <option>Active</option>
+              <option>Incomplete</option>
+              <option>Rejected</option>
+              <option>Approved</option>
+              <option>Waitlist</option>
+              <option>Withdrawn</option>
+            </select>
+          </div>
+
+          <div class="field full">
+            <label>Decision Reason</label>
+            <input type="text" id="f-dreason-${app.serial_number.replace(/\//g,'-')}" placeholder="Reason for decision" value="${app.decision_reason||''}">
+          </div>
+
+          <div class="field full">
+            <label>Notes (internal)</label>
+            <textarea id="f-notes-${app.serial_number.replace(/\//g,'-')}" placeholder="Internal coordinator notes...">${app.notes||''}</textarea>
+          </div>
+
+        </div>
+
+        <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;">
+          <button class="btn btn-primary" onclick="doUpdate('${app.serial_number}')">💾 Save Changes</button>
+          ${app.drive_folder_link ? `<a href="${app.drive_folder_link}" target="_blank" class="btn btn-ghost">📂 Drive Folder</a>` : ''}
+        </div>
+      </div>
+    `;
+    return card;
+  }
+
+  // ── Update ──
+  async function doUpdate(serial) {
+    const id = serial.replace(/\//g, '-');
+    const msgEl = document.getElementById('msg-' + id);
+    msgEl.innerHTML = '<div class="alert alert-info"><span class="spinner"></span> Saving...</div>';
+
+    const val = (fieldId) => {
+      const el = document.getElementById('f-' + fieldId + '-' + id);
+      return el ? el.value.trim() : '';
+    };
+
+    const payload = {
+      action: 'admin_update_v2',
+      admin_password: ADMIN_PWD,
+      serial_number: serial,
+      physical_form_received:       val('phys'),
+      physical_form_received_date:  val('physdate'),
+      documents_verified:           val('docver'),
+      documents_verified_date:      val('docverdate'),
+      current_stage:                val('stage'),
+      stage4_decision:              val('s4'),
+      stage4_reason:                val('s4reason'),
+      interview_date:               val('idate'),
+      interview_mode:               val('imode'),
+      interview_notes:              val('inotes'),
+      assigned_reviewer:            val('reviewer'),
+      office_visit_start:           val('ovstart'),
+      office_visit_end:             val('ovend'),
+      final_decision:               val('decision'),
+      decision_date:                val('ddate'),
+      decision_reason:              val('dreason'),
+      scholarship_amount:           val('amount'),
+      application_status:           val('appstatus'),
+      notes:                        val('notes'),
+    };
+
+    // Remove empty fields so backend only updates what was filled
+    Object.keys(payload).forEach(k => {
+      if (k !== 'action' && k !== 'admin_password' && k !== 'serial_number' && payload[k] === '') {
+        delete payload[k];
+      }
+    });
+
+    try {
+      const res = await fetch(GAS_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (data.success) {
+        msgEl.innerHTML = '<div class="alert alert-success">✅ Saved — updated: ' + data.updated_fields.join(', ') + '. PDF regenerating in background.</div>';
+      } else {
+        msgEl.innerHTML = '<div class="alert alert-error">❌ ' + data.error + '</div>';
+      }
+    } catch(e) {
+      msgEl.innerHTML = '<div class="alert alert-error">❌ Network error: ' + e.message + '</div>';
+    }
+  }
+
+  // Clear session on tab close — prevents credential leak on shared devices
+  window.addEventListener('beforeunload', () => {
+    // Only clear if no active search is in progress (don't clear mid-save)
+    if (!document.querySelector('.spinner')) sessionStorage.clear();
+  });
+
+  function toInputDate(val) {
+    if (!val) return '';
+    // If already YYYY-MM-DD
+    if (/^\d{4}-\d{2}-\d{2}$/.test(String(val))) return val;
+    // If DD/MM/YYYY
+    const m = String(val).match(/^(\d{2})\/(\d{2})\/(\d{4})/);
+    if (m) return m[3] + '-' + m[2] + '-' + m[1];
+    return '';
+  }
+
+  function escapeHtml(str) {
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  function formatDocExplanations(raw) {
+    try {
+      const parsed = JSON.parse(raw);
+      if (parsed && typeof parsed === 'object') {
+        const entries = Object.entries(parsed);
+        if (entries.length === 0) return '—';
+        return entries.map(([k, v]) => `<div style="margin-bottom:4px;"><strong>${escapeHtml(k)}:</strong> ${escapeHtml(v)}</div>`).join('');
+      }
+      return escapeHtml(String(parsed));
+    } catch (e) {
+      return escapeHtml(raw);
+    }
+  }
+
+  // ── Drive Cleanup Module ──
+  let scanResultFolders = [];
+
+  async function scanDriveStorage() {
+    const statusEl = document.getElementById('storage-status');
+    const resultsContainer = document.getElementById('storage-results');
+    const tbody = document.getElementById('storage-table-body');
+    const countEl = document.getElementById('storage-count');
+
+    statusEl.innerHTML = '<div class="alert alert-info"><span class="spinner"></span> Scanning entire Google Sheet for Rejected/Withdrawn applicants...</div>';
+    resultsContainer.style.display = 'none';
+    tbody.innerHTML = '';
+    document.getElementById('delete-confirm-input').value = '';
+
+    try {
+      const res = await fetch(GAS_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ action: 'admin_scan_drive', admin_password: ADMIN_PWD })
+      });
+      const data = await res.json();
+
+      if (!data.success) {
+        statusEl.innerHTML = '<div class="alert alert-error">❌ ' + data.error + '</div>';
+        return;
+      }
+
+      scanResultFolders = data.folders || [];
+      
+      if (scanResultFolders.length === 0) {
+        statusEl.innerHTML = '<div class="alert alert-success">✅ Great! No rejected/withdrawn applicant folders were found in your Drive. Your storage is clean.</div>';
+        return;
+      }
+
+      statusEl.innerHTML = '<div class="alert alert-warning">⚠️ Found ' + scanResultFolders.length + ' folders ready for deletion.</div>';
+      
+      scanResultFolders.forEach(f => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td style="padding:10px; border-bottom:1px solid var(--border); font-family:monospace;">${f.serial_number}</td>
+          <td style="padding:10px; border-bottom:1px solid var(--border);">${f.student_name}</td>
+          <td style="padding:10px; border-bottom:1px solid var(--border);"><span class="status-badge decision-rejected">${f.decision}</span></td>
+          <td style="padding:10px; border-bottom:1px solid var(--border);"><a href="${f.folder_url}" target="_blank" style="color:var(--info);">View Folder ↗</a></td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      countEl.textContent = scanResultFolders.length;
+      resultsContainer.style.display = 'block';
+
+    } catch(e) {
+      statusEl.innerHTML = '<div class="alert alert-error">❌ Network error: ' + e.message + '</div>';
+    }
+  }
+
+  async function executeDriveCleanup() {
+    const confirmInput = document.getElementById('delete-confirm-input').value.trim();
+    if (confirmInput !== 'DELETE') {
+      alert('You must type DELETE in all caps to confirm.');
+      return;
+    }
+
+    if (scanResultFolders.length === 0) return;
+
+    const statusEl = document.getElementById('storage-status');
+    const folderIds = scanResultFolders.map(f => f.folder_id);
+
+    statusEl.innerHTML = '<div class="alert alert-info"><span class="spinner"></span> Deleting ' + folderIds.length + ' folders. This may take a moment...</div>';
+    
+    try {
+      const res = await fetch(GAS_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ action: 'admin_delete_folders', admin_password: ADMIN_PWD, folder_ids: folderIds })
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        statusEl.innerHTML = '<div class="alert alert-success">✅ Cleanup Complete: Successfully deleted ' + data.deleted_count + ' folders.</div>';
+        document.getElementById('storage-results').style.display = 'none';
+        scanResultFolders = [];
+      } else {
+        statusEl.innerHTML = '<div class="alert alert-error">❌ ' + data.error + '</div>';
+      }
+    } catch(e) {
+      statusEl.innerHTML = '<div class="alert alert-error">❌ Network error: ' + e.message + '</div>';
+    }
+  }
+</script>
+</body>
+</html>

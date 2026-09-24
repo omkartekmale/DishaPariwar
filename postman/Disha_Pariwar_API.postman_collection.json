@@ -1,0 +1,271 @@
+{
+  "info": {
+    "_postman_id": "disha-pariwar-api-v1",
+    "name": "Disha Pariwar Charitable Trust - REST API",
+    "description": "Postman Collection for Disha Pariwar Scholarship Portal (React + Spring Boot + MySQL)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8080/api",
+      "type": "string"
+    },
+    {
+      "key": "serial_number",
+      "value": "DP/2026-27/001",
+      "type": "string"
+    },
+    {
+      "key": "draft_id",
+      "value": "DRAFT-DEMO123",
+      "type": "string"
+    },
+    {
+      "key": "admin_token",
+      "value": "ADMIN-TOKEN-2026",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Drafts",
+      "item": [
+        {
+          "name": "1. Create New Draft (Registration)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Rohan Suresh Patil\",\n  \"mobile\": \"9876543210\",\n  \"email\": \"rohan.patil@example.com\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/drafts",
+              "host": ["{{base_url}}"],
+              "path": ["drafts"]
+            }
+          }
+        },
+        {
+          "name": "2. Get Existing Draft (Resume)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/drafts/{{draft_id}}?email=rohan.patil@example.com",
+              "host": ["{{base_url}}"],
+              "path": ["drafts", "{{draft_id}}"],
+              "query": [
+                {
+                  "key": "email",
+                  "value": "rohan.patil@example.com"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "3. Save Draft Panel Progress",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"panel\": 2,\n  \"data\": \"{\\\"district\\\": \\\"Satara\\\", \\\"dob\\\": \\\"2004-05-12\\\"}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/drafts/{{draft_id}}/panel",
+              "host": ["{{base_url}}"],
+              "path": ["drafts", "{{draft_id}}", "panel"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Applications",
+      "item": [
+        {
+          "name": "1. Submit Complete Application",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"draftId\": \"{{draft_id}}\",\n  \"firstName\": \"Rohan\",\n  \"middleName\": \"Suresh\",\n  \"lastName\": \"Patil\",\n  \"fullName\": \"Rohan Suresh Patil\",\n  \"dob\": \"2004-05-12\",\n  \"gender\": \"Male\",\n  \"mobile\": \"9876543210\",\n  \"email\": \"rohan.patil@example.com\",\n  \"category\": \"Open\",\n  \"bloodGroup\": \"O+\",\n  \"physicallyHandicapped\": \"No\",\n  \"currentAddress\": \"Wagholi, Pune\",\n  \"permanentAddress\": \"Karad, Dist. Satara\",\n  \"district\": \"Satara\",\n  \"taluka\": \"Karad\",\n  \"village\": \"Ogalewadi\",\n  \"pincode\": \"415110\",\n  \"admissionConfirmed\": \"Yes\",\n  \"school10th\": \"Z.P. High School\",\n  \"board10th\": \"Maharashtra State Board\",\n  \"marks10th\": \"88.40%\",\n  \"year10th\": \"2020\",\n  \"college12thDiploma\": \"Govt Polytechnic Karad\",\n  \"stream12thDiploma\": \"Mechanical Diploma\",\n  \"marks12thDiploma\": \"82.10%\",\n  \"year12thDiploma\": \"2023\",\n  \"currentCourse\": \"B.E. Mechanical Engineering\",\n  \"currentYear\": \"Direct 2nd Year\",\n  \"collegeName\": \"COEP Technological University\",\n  \"collegeAddress\": \"Shivajinagar, Pune\",\n  \"admissionType\": \"CAP Round\",\n  \"fatherName\": \"Suresh Patil\",\n  \"fatherOccupation\": \"Farmer\",\n  \"fatherIncome\": 65000,\n  \"motherName\": \"Sunita Patil\",\n  \"motherOccupation\": \"Homemaker\",\n  \"motherIncome\": 0,\n  \"parentStatus\": \"Both Alive\",\n  \"rationCardType\": \"BPL (Orange)\",\n  \"houseType\": \"Owned (Kutcha)\",\n  \"totalAnnualIncome\": 65000,\n  \"feeCollege\": 85000,\n  \"feeHostel\": 24000,\n  \"feeMess\": 28000,\n  \"feeBooks\": 5000,\n  \"feeTransport\": 4000,\n  \"feeOther\": 2000,\n  \"feeTotal\": 148000,\n  \"govtScholarshipReceived\": \"Yes\",\n  \"govtScholarshipName\": \"EBC Scheme\",\n  \"govtScholarshipAmount\": 40000,\n  \"bankAccountHolder\": \"Rohan Suresh Patil\",\n  \"bankName\": \"State Bank of India\",\n  \"bankBranch\": \"Karad\",\n  \"accountNumber\": \"321098765432\",\n  \"ifscCode\": \"SBIN0000398\",\n  \"declarationAgreed\": true,\n  \"termsAgreed\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/applications",
+              "host": ["{{base_url}}"],
+              "path": ["applications"]
+            }
+          }
+        },
+        {
+          "name": "2. Get Application Status & Timeline",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/applications/{{serial_number}}/status",
+              "host": ["{{base_url}}"],
+              "path": ["applications", "{{serial_number}}", "status"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Student Auth & OTP",
+      "item": [
+        {
+          "name": "1. Request Login OTP",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"serial_number\": \"{{serial_number}}\",\n  \"email\": \"rohan.patil@example.com\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/otp/request",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "otp", "request"]
+            }
+          }
+        },
+        {
+          "name": "2. Verify OTP & Receive Session Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"serial_number\": \"{{serial_number}}\",\n  \"email\": \"rohan.patil@example.com\",\n  \"otp\": \"123456\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/otp/verify",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "otp", "verify"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin Operations",
+      "item": [
+        {
+          "name": "1. Admin Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"password\": \"admin@disha2026\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/login",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "login"]
+            }
+          }
+        },
+        {
+          "name": "2. Search / List Applications",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/applications?query=",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "applications"],
+              "query": [
+                {
+                  "key": "query",
+                  "value": ""
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "3. Admin Review & Status Update",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"currentStage\": \"Stage 3\",\n  \"physicalFormReceived\": \"Yes\",\n  \"documentsVerified\": \"Yes\",\n  \"finalDecision\": \"Approved\",\n  \"scholarshipAmount\": 35000.00,\n  \"internalNotes\": \"Merit student with single farming parent. Highly recommended.\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/applications/{{serial_number}}",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "applications", "{{serial_number}}"]
+            }
+          }
+        },
+        {
+          "name": "4. Get Dashboard Metrics",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/metrics",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "metrics"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
