@@ -10,25 +10,13 @@ const app = express();
 const PORT = 3000;
 const HOST = '0.0.0.0';
 
-// Serve static assets from root directory
-app.use(express.static(__dirname, {
-  extensions: ['html'],
-  index: 'index.html'
-}));
+// Serve static assets from dist directory (built React SPA)
+const distPath = path.join(__dirname, 'dist');
+app.use(express.static(distPath));
 
-// Route fallback: if route does not match a file, try route.html or index.html
+// SPA fallback: any non-static request routes to dist/index.html
 app.get('*', (req, res) => {
-  const cleanPath = req.path.replace(/^\//, '');
-  if (cleanPath) {
-    const candidate = path.join(__dirname, cleanPath + '.html');
-    res.sendFile(candidate, (err) => {
-      if (err) {
-        res.sendFile(path.join(__dirname, 'index.html'));
-      }
-    });
-  } else {
-    res.sendFile(path.join(__dirname, 'index.html'));
-  }
+  res.sendFile(path.join(distPath, 'index.html'));
 });
 
 app.listen(PORT, HOST, () => {

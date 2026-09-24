@@ -1,12 +1,13 @@
 {
   "name": "disha-pariwar",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Disha Pariwar Charitable Trust, Pune — Supporting meritorious students across rural Maharashtra since 2007.",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "start": "node server.js"
   },
   "dependencies": {
     "express": "^4.21.2",
