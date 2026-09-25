@@ -192,6 +192,16 @@ const Footer = ({
               <span className="en">Privacy Policy</span>
             </Link>
             &nbsp;|&nbsp;
+            <a
+              href="/Disha_Pariwar_Project_Management_Documentation.doc"
+              download="Disha_Pariwar_Project_Management_Documentation.doc"
+              style={{ color: '#F5C842', textDecoration: 'underline' }}
+              title="Download Project Management Documentation (.doc)"
+            >
+              📄 <span className="mr">प्रकल्प अहवाल (PM .DOC)</span>
+              <span className="en">Project Dossier (.DOC)</span>
+            </a>
+            &nbsp;|&nbsp;
             <span className="mr">DPDP Act 2023 अनुपालित | विद्यार्थी सहाय्यता पोर्टल</span>
             <span className="en">DPDP Act 2023 Compliant | Student Support Portal</span>
           </span>
