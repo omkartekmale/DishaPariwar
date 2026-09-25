@@ -118,18 +118,20 @@ const ApplyPage = () => {
     try {
       const res = await api.submitApplication(formData);
       if (res.success) {
-        setSubmittedData(res.data);
+        const refId = res.data?.referenceNumber || res.referenceNumber;
+        const finalData = res.data || { ...formData, referenceNumber: refId };
+        setSubmittedData(finalData);
         try {
-          localStorage.setItem('disha_recent_ref', res.data.referenceNumber);
+          if (refId) localStorage.setItem('disha_recent_ref', refId);
           if (formData.mobile) localStorage.setItem('disha_recent_mobile', formData.mobile);
         } catch {
           // ignore
         }
         if (user) {
-          updateUser({ referenceNumber: res.data.referenceNumber, mobile: formData.mobile, fullName: formData.studentName });
+          updateUser({ referenceNumber: refId, mobile: formData.mobile, fullName: formData.studentName });
         }
         showNotification(
-          t(`अर्ज यशस्वीरीत्या जमा झाला! संदर्भ क्र: ${res.data.referenceNumber}`, `Application submitted! Ref ID: ${res.data.referenceNumber}`),
+          t(`अर्ज यशस्वीरीत्या जमा झाला! संदर्भ क्र: ${refId}`, `Application submitted! Ref ID: ${refId}`),
           'success'
         );
       } else {

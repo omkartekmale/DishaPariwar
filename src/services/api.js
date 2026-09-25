@@ -1,12 +1,9 @@
 // Disha Pariwar RESTful API Client
-// Supports a real backend when available and falls back to locally stored demo data.
+// Connects to Spring Boot backend at /api/v1, with local fallback for preview state
 
-const API_BASE_CANDIDATES = [
-  typeof import.meta !== 'undefined' && import.meta.env ? import.meta.env.VITE_API_BASE_URL : '',
-  '/api/v1',
-  '/api',
-].filter(Boolean);
+const BASE_URL = '/api/v1';
 
+// Initial seed data for demo/preview if backend is not running yet
 const DEFAULT_APPLICATIONS = [
   {
     referenceNumber: 'DP-2026-8492',
@@ -19,7 +16,7 @@ const DEFAULT_APPLICATIONS = [
     familyIncome: 65000,
     marks10th: 88.40,
     marks12th: 82.60,
-    status: 'UNDER_REVIEW',
+    status: 'UNDER_REVIEW', // UNDER_REVIEW, APPROVED, REJECTED, DOCUMENTS_PENDING
     statusMr: 'छाननी चालू आहे',
     statusEn: 'Under Committee Review',
     appliedAt: '2026-08-12',
@@ -49,7 +46,10 @@ const DEFAULT_APPLICATIONS = [
 const getStoredApplications = () => {
   try {
     const saved = localStorage.getItem('dp_applications');
-    if (saved) return JSON.parse(saved);
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    }
     localStorage.setItem('dp_applications', JSON.stringify(DEFAULT_APPLICATIONS));
     return DEFAULT_APPLICATIONS;
   } catch {
@@ -65,62 +65,41 @@ const saveStoredApplications = (apps) => {
   }
 };
 
-const fetchJson = async (path, options = {}) => {
-  const urlPath = path.startsWith('/') ? path : `/${path}`;
-
-  for (const base of API_BASE_CANDIDATES) {
-    try {
-      const response = await fetch(`${base.replace(/\/$/, '')}${urlPath}`, {
-        headers: {
-          Accept: 'application/json',
-          ...(options.headers || {}),
-        },
-        ...options,
-      });
-
-      if (response.ok) {
-        return await response.json();
-      }
-
-      if (response.status === 404) {
-        continue;
-      }
-
-      const errorBody = await response.text();
-      throw new Error(errorBody || 'Request failed');
-    } catch (error) {
-      if (base === API_BASE_CANDIDATES[API_BASE_CANDIDATES.length - 1]) {
-        throw error;
-      }
-    }
-  }
-
-  return null;
-};
-
 export const api = {
-  async trackApplication(referenceNumber, mobile) {
+  // Track application by Reference Number and Mobile
+  async trackApplication(referenceNumber, mobile = '') {
+    const safeRef = (referenceNumber || '').trim();
+    const safeMobile = (mobile || '').trim();
+
+    if (!safeRef) {
+      return { success: false, message: 'Reference number is required.' };
+    }
+
     try {
-      const response = await fetchJson(`/applications/track?referenceNumber=${encodeURIComponent(referenceNumber)}&mobile=${encodeURIComponent(mobile)}`);
-      if (response && response.success) return response;
+      const res = await fetch(`${BASE_URL}/applications/track?referenceNumber=${encodeURIComponent(safeRef)}&mobile=${encodeURIComponent(safeMobile)}`);
+      if (res.ok) {
+        const json = await res.json();
+        if (json && json.success) return json;
+      }
     } catch {
-      // fallback
+      // fallback to local storage
     }
 
     const apps = getStoredApplications();
-    const cleanRef = referenceNumber.trim().toUpperCase();
-    const cleanMobile = mobile.trim();
+    const cleanRef = safeRef.toUpperCase();
 
-    const found = apps.find((a) =>
-      a.referenceNumber.toUpperCase() === cleanRef &&
-      (!cleanMobile || a.mobile.endsWith(cleanMobile.slice(-4)) || a.mobile === cleanMobile)
+    const found = apps.find(a => 
+      a.referenceNumber &&
+      a.referenceNumber.toUpperCase() === cleanRef && 
+      (!safeMobile || (a.mobile && (a.mobile.endsWith(safeMobile.slice(-4)) || a.mobile === safeMobile)))
     );
 
     if (found) return { success: true, data: found };
     return { success: false, message: 'Application not found with given details.' };
   },
 
-  async submitApplication(data) {
+  // Submit new scholarship application
+  async submitApplication(data = {}) {
     const newRef = `DP-2026-${Math.floor(1000 + Math.random() * 9000)}`;
     const newRecord = {
       referenceNumber: newRef,
@@ -129,54 +108,53 @@ export const api = {
       statusMr: 'अर्ज प्राप्त झाला / छाननी प्रलंबित',
       statusEn: 'Received & Pending Verification',
       remarks: 'तुमचा अर्ज यशस्वीरीत्या जमा झाला आहे.',
-      ...data,
+      ...data
     };
 
-    try {
-      const response = await fetchJson('/applications', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newRecord),
-      });
-      if (response && response.success) return response;
-    } catch {
-      // fallback
-    }
-
+    // Always update client-side cache immediately for instant tracking & admin visibility
     const apps = getStoredApplications();
     apps.unshift(newRecord);
     saveStoredApplications(apps);
 
+    try {
+      const res = await fetch(`${BASE_URL}/applications`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newRecord)
+      });
+      if (res.ok) {
+        const serverRes = await res.json();
+        return serverRes;
+      }
+    } catch {
+      // fallback to local
+    }
+
     return { success: true, data: newRecord, referenceNumber: newRef };
   },
 
+  // Fetch all applications (for Admin dashboard)
   async getApplications() {
     try {
-      const response = await fetchJson('/admin/applications');
-      if (response && response.success) return response;
+      const res = await fetch(`${BASE_URL}/admin/applications`);
+      if (res.ok) return await res.json();
     } catch {
-      // fallback
+      // fallback to local
     }
     return { success: true, data: getStoredApplications() };
   },
 
-  async updateStatus(referenceNumber, newStatus, remarks) {
-    try {
-      const response = await fetchJson(`/admin/applications/${referenceNumber}/status`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: newStatus, remarks }),
-      });
-      if (response && response.success) return response;
-    } catch {
-      // fallback
-    }
-
+  // Update application status
+  async updateStatus(referenceNumber, newStatus, remarks, sanctionAmount) {
+    const cleanRef = (referenceNumber || '').trim().toUpperCase();
     const apps = getStoredApplications();
-    const idx = apps.findIndex((a) => a.referenceNumber === referenceNumber);
+    const idx = apps.findIndex(a => a.referenceNumber && a.referenceNumber.toUpperCase() === cleanRef);
+
     if (idx !== -1) {
       apps[idx].status = newStatus;
-      apps[idx].remarks = remarks;
+      if (remarks !== undefined) apps[idx].remarks = remarks;
+      if (sanctionAmount !== undefined) apps[idx].sanctionAmount = sanctionAmount;
+
       if (newStatus === 'APPROVED') {
         apps[idx].statusMr = 'मंजूर करण्यात आला';
         apps[idx].statusEn = 'Scholarship Approved';
@@ -188,22 +166,37 @@ export const api = {
         apps[idx].statusEn = 'Documents Pending';
       } else {
         apps[idx].statusMr = 'छाननी चालू आहे';
-        apps[idx].statusEn = 'Under Review';
+        apps[idx].statusEn = 'Under Committee Review';
       }
       saveStoredApplications(apps);
+    }
+
+    try {
+      const res = await fetch(`${BASE_URL}/admin/applications/${encodeURIComponent(cleanRef)}/status`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus, remarks, sanctionAmount })
+      });
+      if (res.ok) return await res.json();
+    } catch {
+      // fallback
+    }
+
+    if (idx !== -1) {
       return { success: true, data: apps[idx] };
     }
     return { success: false, message: 'Not found' };
   },
 
+  // Submit contact inquiry
   async submitInquiry(inquiry) {
     try {
-      const response = await fetchJson('/contact', {
+      const res = await fetch(`${BASE_URL}/contact`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(inquiry),
+        body: JSON.stringify(inquiry)
       });
-      if (response && response.success) return response;
+      if (res.ok) return await res.json();
     } catch {
       // fallback
     }
