@@ -1,0 +1,534 @@
+<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+<head>
+<meta charset="utf-8">
+<title>Disha Pariwar Charitable Trust - API Testing and Build Documentation (v2.0)</title>
+<!--[if gte mso 9]>
+<xml>
+<w:WordDocument>
+<w:View>Print</w:View>
+<w:Zoom>100</w:Zoom>
+<w:DoNotOptimizeForBrowser/>
+</w:WordDocument>
+</xml>
+<![endif]-->
+<style>
+@page {
+  size: A4 portrait;
+  margin: 1.0in 1.0in 1.0in 1.0in;
+  mso-header-margin: 0.5in;
+  mso-footer-margin: 0.5in;
+}
+body {
+  font-family: 'Segoe UI', Calibri, Arial, sans-serif;
+  font-size: 10.5pt;
+  line-height: 1.5;
+  color: #2D3748;
+  background-color: #FFFFFF;
+}
+h1, h2, h3, h4 {
+  color: #96281B;
+  font-weight: 700;
+  margin-top: 18pt;
+  margin-bottom: 6pt;
+}
+h1 {
+  font-size: 22pt;
+  line-height: 1.2;
+  border-bottom: 3pt solid #C0392B;
+  padding-bottom: 8pt;
+  margin-bottom: 14pt;
+}
+h2 {
+  font-size: 15pt;
+  border-bottom: 1pt solid #E2E8F0;
+  padding-bottom: 4pt;
+  margin-top: 18pt;
+}
+h3 {
+  font-size: 12.5pt;
+  color: #C0392B;
+  margin-top: 12pt;
+}
+h4 {
+  font-size: 11pt;
+  color: #4A5568;
+}
+p {
+  margin-top: 0;
+  margin-bottom: 8pt;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10pt;
+  margin-bottom: 14pt;
+  font-size: 9.5pt;
+}
+th {
+  background-color: #96281B;
+  color: #FFFFFF;
+  text-align: left;
+  padding: 6pt 8pt;
+  font-weight: 600;
+  border: 1pt solid #7B1E13;
+}
+td {
+  padding: 6pt 8pt;
+  border: 1pt solid #CBD5E0;
+  vertical-align: top;
+}
+tr:nth-child(even) td {
+  background-color: #F8FAFC;
+}
+.badge {
+  display: inline-block;
+  padding: 2pt 5pt;
+  font-size: 8.5pt;
+  font-weight: 700;
+  border-radius: 3pt;
+}
+.badge-success { background-color: #C6F6D5; color: #22543D; }
+.badge-info { background-color: #BEE3F8; color: #2A4365; }
+.badge-warning { background-color: #FEEBC8; color: #744210; }
+.badge-danger { background-color: #FED7D7; color: #742A2A; }
+.callout {
+  background-color: #FEFCF8;
+  border-left: 4pt solid #C0392B;
+  padding: 8pt 12pt;
+  margin: 10pt 0;
+  border-radius: 0 4pt 4pt 0;
+}
+pre, code {
+  font-family: 'Consolas', 'Courier New', monospace;
+  font-size: 9pt;
+}
+pre {
+  background-color: #1A202C;
+  color: #EDF2F7;
+  padding: 8pt 10pt;
+  border-radius: 4pt;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  margin: 6pt 0 10pt 0;
+}
+.metadata-table td {
+  border: none;
+  padding: 4pt 8pt;
+  font-size: 9.5pt;
+}
+.metadata-table {
+  margin-bottom: 16pt;
+  border: 1pt solid #E2E8F0;
+  background-color: #F8FAFC;
+}
+.page-break {
+  page-break-after: always;
+}
+</style>
+</head>
+<body>
+
+<!-- COVER / TITLE BLOCK -->
+<div style="text-align: center; padding-top: 20pt; padding-bottom: 15pt;">
+  <div style="font-size: 12pt; letter-spacing: 2pt; color: #C0392B; font-weight: 700; text-transform: uppercase;">
+    Disha Pariwar Charitable Trust, Pune (Reg. F-22123)
+  </div>
+  <h1 style="border: none; margin-top: 10pt; margin-bottom: 6pt; font-size: 24pt; color: #96281B;">
+    API TESTING &amp; BUILD SPECIFICATION DOSSIER
+  </h1>
+  <div style="font-size: 13pt; color: #4A5568; font-weight: 600; margin-bottom: 12pt;">
+    Comprehensive RESTful Endpoints, Expected Outputs, Test Suite &amp; Build Manual (v2.0)
+  </div>
+  <div style="font-size: 10.5pt; color: #718096;">
+    System Release: <strong>v2.0.0</strong> | Environment: <strong>Node.js, Express &amp; React 19</strong> | Date: <strong>September 2026</strong>
+  </div>
+</div>
+
+<hr style="border: 0; border-top: 2pt solid #C0392B; margin: 15pt 0;" />
+
+<!-- METADATA BLOCK -->
+<table class="metadata-table">
+  <tr>
+    <td style="width: 25%; font-weight: bold; color: #96281B;">System Name:</td>
+    <td style="width: 35%;">Disha Pariwar Scholarship Portal</td>
+    <td style="width: 20%; font-weight: bold; color: #96281B;">API Version:</td>
+    <td style="width: 20%;">v1.0 (RESTful / JSON)</td>
+  </tr>
+  <tr>
+    <td style="font-weight: bold; color: #96281B;">Frontend Stack:</td>
+    <td>React 19, Vite, React Router 7</td>
+    <td style="font-weight: bold; color: #96281B;">Server Stack:</td>
+    <td>Node.js, Express.js (Port 3000)</td>
+  </tr>
+  <tr>
+    <td style="font-weight: bold; color: #96281B;">Base Endpoint:</td>
+    <td><code>http://localhost:3000/api/v1</code></td>
+    <td style="font-weight: bold; color: #96281B;">Test Coverage:</td>
+    <td>Positive, Negative, Boundary &amp; Unicode</td>
+  </tr>
+</table>
+
+<!-- SECTION 1 -->
+<h2>1. Building, Compilation &amp; Packaging Guide</h2>
+
+<p>
+  This guide provides step-by-step instructions for installing dependencies, running the application in local development mode, compiling for production, and containerizing via Docker.
+</p>
+
+<h3>1.1 Prerequisites</h3>
+<ul>
+  <li><strong>Node.js:</strong> v18.0.0 or higher (v20+ LTS recommended).</li>
+  <li><strong>npm:</strong> v9.0.0 or higher.</li>
+  <li><strong>Port 3000:</strong> Ensure TCP Port 3000 is available on your host system.</li>
+</ul>
+
+<h3>1.2 Dependency Installation</h3>
+<p>In the project root directory, run:</p>
+<pre>npm install</pre>
+
+<h3>1.3 Development Server Execution</h3>
+<p>To run the Vite dev server with Hot Module Replacement (HMR) on port 3000:</p>
+<pre>npm run dev</pre>
+<p>Open your browser at: <strong>http://localhost:3000/</strong></p>
+
+<h3>1.4 Production Build Compilation</h3>
+<p>To build minified, optimized production assets:</p>
+<pre>npm run build</pre>
+<p>
+  This executes <code>vite build</code> and generates production-ready bundles in the <code>/dist</code> folder:
+</p>
+<ul>
+  <li><code>dist/index.html</code> — Production HTML entry point</li>
+  <li><code>dist/assets/index-[hash].js</code> — Code-split, minified JavaScript bundle (~190 KB gzipped)</li>
+  <li><code>dist/assets/index-[hash].css</code> — Minified design system stylesheet (~3.6 KB gzipped)</li>
+  <li><code>dist/assets/scholarship_arj_form.pdf</code> — Printable offline application form</li>
+</ul>
+
+<h3>1.5 Running the Production Express Server</h3>
+<p>To start the production server serving the compiled distribution:</p>
+<pre>npm start</pre>
+<p>Output confirmation:</p>
+<pre>Disha Pariwar Portal v2.0 running at http://0.0.0.0:3000
+Production SPA static assets mounted from /app/applet/dist</pre>
+
+<div class="page-break"></div>
+
+<!-- SECTION 2 -->
+<h2>2. RESTful API Specification &amp; Expected Outputs</h2>
+
+<p>
+  All requests accept and return <code>application/json; charset=utf-8</code>.
+</p>
+
+<!-- ENDPOINT 1 -->
+<h3>Endpoint 1: Track Application Status</h3>
+<p><strong><code>GET /api/v1/applications/track?referenceNumber={ref}&amp;mobile={mobile}</code></strong></p>
+<p>Allows applicants and parents to inspect real-time progress using their Reference Number and mobile digits.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="width: 25%;">Parameter</th>
+      <th style="width: 15%;">Type</th>
+      <th style="width: 15%;">Required</th>
+      <th style="width: 45%;">Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>referenceNumber</code></td>
+      <td>String</td>
+      <td><span class="badge badge-danger">Yes</span></td>
+      <td>Format: <code>DP-2026-XXXX</code> (Case-insensitive)</td>
+    </tr>
+    <tr>
+      <td><code>mobile</code></td>
+      <td>String</td>
+      <td>Optional</td>
+      <td>Last 4 or 10 digits of registered mobile number</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>Expected Output (Success 200 OK):</strong></p>
+<pre>{
+  "success": true,
+  "data": {
+    "referenceNumber": "DP-2026-8492",
+    "studentName": "अनिकेत ज्ञानेश्वर पाटील (Aniket Dnyaneshwar Patil)",
+    "mobile": "9876543210",
+    "email": "aniket.patil@example.com",
+    "district": "सातारा (Satara)",
+    "course": "B.Tech Computer Engineering (1st Year)",
+    "collegeName": "Government College of Engineering, Karad",
+    "familyIncome": 65000,
+    "marks10th": 88.40,
+    "marks12th": 82.60,
+    "status": "UNDER_REVIEW",
+    "statusMr": "छाननी चालू आहे",
+    "statusEn": "Under Committee Review",
+    "appliedAt": "2026-08-12",
+    "assignedReviewer": "S. K. Joshi",
+    "remarks": "सर्व कागदपत्रे प्राप्त झाली आहेत. समितीची बैठक लवकरच होईल."
+  }
+}</pre>
+
+<p><strong>Expected Output (Not Found 404):</strong></p>
+<pre>{
+  "success": false,
+  "message": "Application not found with given details."
+}</pre>
+
+<!-- ENDPOINT 2 -->
+<h3>Endpoint 2: Submit New Scholarship Application</h3>
+<p><strong><code>POST /api/v1/applications</code></strong></p>
+<p>Submits a 3-step application dossier for review. Automatically assigns a unique tracking reference number.</p>
+
+<p><strong>Request Payload:</strong></p>
+<pre>{
+  "studentName": "सुमित विठ्ठल जाधव (Sumit Vitthal Jadhav)",
+  "mobile": "9822114455",
+  "email": "sumit.jadhav@example.com",
+  "district": "सातारा (Satara)",
+  "tehsil": "कराड (Karad)",
+  "address": "मु. पो. तांबवे, ता. कराड, जि. सातारा",
+  "aadhaarNumber": "458912345678",
+  "course": "B.Sc Computer Science",
+  "collegeName": "Kisan Veer Mahavidyalaya, Wai",
+  "educationType": "DEGREE",
+  "marks10th": 87.60,
+  "marks12th": 84.20,
+  "familyIncome": 55000,
+  "parentOccupation": "अल्पभूधारक शेतकरी (Small Farmer)",
+  "bankName": "Bank of Maharashtra",
+  "accountNumber": "60234567890",
+  "ifscCode": "MAHB0000123"
+}</pre>
+
+<p><strong>Expected Output (Success 201 Created / 200 OK):</strong></p>
+<pre>{
+  "success": true,
+  "referenceNumber": "DP-2026-4821",
+  "data": {
+    "referenceNumber": "DP-2026-4821",
+    "studentName": "सुमित विठ्ठल जाधव (Sumit Vitthal Jadhav)",
+    "mobile": "9822114455",
+    "appliedAt": "2026-09-25",
+    "status": "UNDER_REVIEW",
+    "statusMr": "अर्ज प्राप्त झाला / छाननी प्रलंबित",
+    "statusEn": "Received &amp; Pending Verification",
+    "remarks": "तुमचा अर्ज यशस्वीरीत्या जमा झाला आहे."
+  }
+}</pre>
+
+<!-- ENDPOINT 3 -->
+<h3>Endpoint 3: Admin List &amp; Filter Applications</h3>
+<p><strong><code>GET /api/v1/admin/applications</code></strong></p>
+<p>Retrieves all applications for review committee members with status, district, and text filtering.</p>
+
+<p><strong>Expected Output (Success 200 OK):</strong></p>
+<pre>{
+  "success": true,
+  "data": [
+    {
+      "referenceNumber": "DP-2026-8492",
+      "studentName": "अनिकेत ज्ञानेश्वर पाटील",
+      "mobile": "9876543210",
+      "district": "सातारा",
+      "course": "B.Tech Computer Engineering",
+      "familyIncome": 65000,
+      "marks10th": 88.40,
+      "status": "UNDER_REVIEW",
+      "appliedAt": "2026-08-12"
+    },
+    {
+      "referenceNumber": "DP-2026-7215",
+      "studentName": "प्रियांका राहुल साळुंखे",
+      "mobile": "9123456780",
+      "district": "सोलापूर",
+      "course": "Diploma in Electrical Engineering",
+      "familyIncome": 48000,
+      "marks10th": 91.20,
+      "status": "APPROVED",
+      "appliedAt": "2026-07-28"
+    }
+  ]
+}</pre>
+
+<!-- ENDPOINT 4 -->
+<h3>Endpoint 4: Admin Update Application Status</h3>
+<p><strong><code>PUT /api/v1/admin/applications/{referenceNumber}/status</code></strong></p>
+<p>Updates an applicant's evaluation status, sanctioned scholarship amount, and official remarks.</p>
+
+<p><strong>Request Payload:</strong></p>
+<pre>{
+  "status": "APPROVED",
+  "sanctionAmount": 20000,
+  "remarks": "समितीने अर्ज मंजूर केला आहे. शिष्यवृत्ती वाटप लवकरच होईल."
+}</pre>
+
+<p><strong>Expected Output (Success 200 OK):</strong></p>
+<pre>{
+  "success": true,
+  "data": {
+    "referenceNumber": "DP-2026-8492",
+    "status": "APPROVED",
+    "statusMr": "मंजूर करण्यात आला",
+    "statusEn": "Scholarship Approved",
+    "sanctionAmount": 20000,
+    "remarks": "समितीने अर्ज मंजूर केला आहे. शिष्यवृत्ती वाटप लवकरच होईल."
+  }
+}</pre>
+
+<div class="page-break"></div>
+
+<!-- SECTION 3 -->
+<h2>3. Comprehensive API Test Suite &amp; Test Matrix</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Test ID</th>
+      <th>Endpoint &amp; Method</th>
+      <th>Scenario Tested</th>
+      <th>Status</th>
+      <th>Key Assertion</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>TC-P01</strong></td>
+      <td><code>GET /applications/track</code></td>
+      <td>Track with valid Ref ID and Mobile</td>
+      <td><span class="badge badge-success">200 OK</span></td>
+      <td>Returns exact student record and current status</td>
+    </tr>
+    <tr>
+      <td><strong>TC-P02</strong></td>
+      <td><code>GET /applications/track</code></td>
+      <td>Track with Ref ID only (omit mobile)</td>
+      <td><span class="badge badge-success">200 OK</span></td>
+      <td>Returns applicant record matching Ref ID</td>
+    </tr>
+    <tr>
+      <td><strong>TC-P03</strong></td>
+      <td><code>POST /applications</code></td>
+      <td>Submit eligible candidate (Merit &gt; 80%, Income &lt; 2L)</td>
+      <td><span class="badge badge-success">200/201</span></td>
+      <td>Generates unique <code>DP-2026-XXXX</code> reference ID</td>
+    </tr>
+    <tr>
+      <td><strong>TC-P04</strong></td>
+      <td><code>GET /admin/applications</code></td>
+      <td>List all applications for admin dashboard</td>
+      <td><span class="badge badge-success">200 OK</span></td>
+      <td>Returns array of applicants with correct data keys</td>
+    </tr>
+    <tr>
+      <td><strong>TC-P05</strong></td>
+      <td><code>PUT /admin/.../status</code></td>
+      <td>Update status to <code>APPROVED</code> with remarks</td>
+      <td><span class="badge badge-success">200 OK</span></td>
+      <td>Status updated, Marathi and English labels synchronized</td>
+    </tr>
+    <tr>
+      <td><strong>TC-N01</strong></td>
+      <td><code>GET /applications/track</code></td>
+      <td>Query with non-existent Reference ID</td>
+      <td><span class="badge badge-danger">404</span></td>
+      <td>Returns <code>success: false</code> and not found message</td>
+    </tr>
+    <tr>
+      <td><strong>TC-N02</strong></td>
+      <td><code>GET /applications/track</code></td>
+      <td>Valid Ref ID with wrong mobile number</td>
+      <td><span class="badge badge-danger">404</span></td>
+      <td>Discrepancy blocked, access denied</td>
+    </tr>
+    <tr>
+      <td><strong>TC-N03</strong></td>
+      <td><code>POST /applications</code></td>
+      <td>Submit application with empty student name</td>
+      <td><span class="badge badge-warning">400</span></td>
+      <td>Form rejected with validation failure</td>
+    </tr>
+    <tr>
+      <td><strong>TC-N04</strong></td>
+      <td><code>POST /applications</code></td>
+      <td>Submit invalid 8-digit mobile number</td>
+      <td><span class="badge badge-warning">400</span></td>
+      <td>Phone format error returned</td>
+    </tr>
+    <tr>
+      <td><strong>TC-N05</strong></td>
+      <td><code>PUT /admin/.../status</code></td>
+      <td>Update invalid Reference Number</td>
+      <td><span class="badge badge-danger">404</span></td>
+      <td>Returns <code>message: "Not found"</code></td>
+    </tr>
+    <tr>
+      <td><strong>TC-E01</strong></td>
+      <td><code>POST /applications</code></td>
+      <td>Boundary: Annual family income exactly ₹2,00,000</td>
+      <td><span class="badge badge-success">200/201</span></td>
+      <td>Allowed at upper eligibility boundary</td>
+    </tr>
+    <tr>
+      <td><strong>TC-E02</strong></td>
+      <td><code>POST /applications</code></td>
+      <td>Boundary: 10th marks exactly 80.00%</td>
+      <td><span class="badge badge-success">200/201</span></td>
+      <td>Allowed at lower merit boundary</td>
+    </tr>
+    <tr>
+      <td><strong>TC-E03</strong></td>
+      <td><code>POST /applications</code></td>
+      <td>Unicode Devanagari text fidelity</td>
+      <td><span class="badge badge-success">200/201</span></td>
+      <td>Devanagari conjuncts preserved with zero corruption</td>
+    </tr>
+    <tr>
+      <td><strong>TC-E04</strong></td>
+      <td><code>GET /applications/track</code></td>
+      <td>Case insensitive lookup (<code>dp-2026-8492</code>)</td>
+      <td><span class="badge badge-success">200 OK</span></td>
+      <td>Uppercase normalization retrieves record</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- SECTION 4 -->
+<h2>4. Ready-to-Run cURL Test Commands</h2>
+
+<h3>Test 1: Track Existing Application</h3>
+<pre>curl -X GET "http://localhost:3000/api/v1/applications/track?referenceNumber=DP-2026-8492&amp;mobile=9876543210" \
+     -H "Accept: application/json"</pre>
+
+<h3>Test 2: Submit New Application</h3>
+<pre>curl -X POST "http://localhost:3000/api/v1/applications" \
+     -H "Content-Type: application/json" \
+     -d '{
+       "studentName": "अमृता पांडुरंग शिंदे",
+       "mobile": "9765432109",
+       "district": "पुणे",
+       "course": "B.Com",
+       "familyIncome": 72000,
+       "marks10th": 89.20
+     }'</pre>
+
+<h3>Test 3: Admin Status Promotion</h3>
+<pre>curl -X PUT "http://localhost:3000/api/v1/admin/applications/DP-2026-8492/status" \
+     -H "Content-Type: application/json" \
+     -d '{
+       "status": "APPROVED",
+       "remarks": "समितीने अर्ज मंजूर केला आहे."
+     }'</pre>
+
+<br>
+<hr style="border: 0; border-top: 1pt solid #CBD5E0; margin: 20pt 0;">
+<div style="text-align: center; font-size: 9.5pt; color: #718096;">
+  <strong>Disha Pariwar Charitable Trust, Pune</strong> — Laxmi Road, Narayan Peth, Pune | Quality Assurance &amp; Engineering Directorate
+</div>
+
+</body>
+</html>

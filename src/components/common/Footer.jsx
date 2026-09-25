@@ -202,6 +202,16 @@ const Footer = ({
               <span className="en">Project Dossier (.DOC)</span>
             </a>
             &nbsp;|&nbsp;
+            <a
+              href="/Disha_Pariwar_API_and_Build_Documentation.doc"
+              download="Disha_Pariwar_API_and_Build_Documentation.doc"
+              style={{ color: '#F5C842', textDecoration: 'underline' }}
+              title="Download API Testing and Build Documentation (.doc)"
+            >
+              ⚡ <span className="mr">API व बिल्ड दस्तऐवज (.DOC)</span>
+              <span className="en">API &amp; Build Docs (.DOC)</span>
+            </a>
+            &nbsp;|&nbsp;
             <span className="mr">DPDP Act 2023 अनुपालित | विद्यार्थी सहाय्यता पोर्टल</span>
             <span className="en">DPDP Act 2023 Compliant | Student Support Portal</span>
           </span>
