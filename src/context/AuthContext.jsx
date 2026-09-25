@@ -17,6 +17,10 @@ const AuthContext = createContext({
   clearError: () => {},
 });
 
+const ADMIN_USERNAME = import.meta.env.VITE_ADMIN_USERNAME || 'admin';
+const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD || 'disha2026';
+const ALLOW_DEV_FALLBACK = !import.meta.env.PROD;
+
 // Demo administrator account for review & testing
 const DEMO_ADMIN = {
   id: 'adm-001',
@@ -108,15 +112,20 @@ export const AuthProvider = ({ children }) => {
     const cleanId = (identifier || '').trim().toLowerCase();
     const cleanPass = (password || '').trim();
 
+    const configuredAdminUsernames = [ADMIN_USERNAME, 'admin', 'admin@dishapariwar.org'];
+    const configuredAdminPasswords = [ADMIN_PASSWORD];
+
+    if (ALLOW_DEV_FALLBACK) {
+      configuredAdminPasswords.push('disha2026', 'admin');
+    }
+
     // Check for Admin login
     if (
       role === 'ADMIN' ||
-      cleanId === 'admin' ||
-      cleanId === 'admin@dishapariwar.org' ||
+      configuredAdminUsernames.includes(cleanId) ||
       cleanId === 'team.dishapariwar@gmail.com'
     ) {
-      // Allow demo admin login (disha2026 or admin or demo)
-      if (!cleanPass || cleanPass === 'disha2026' || cleanPass === 'admin' || cleanPass === '123456') {
+      if (!cleanPass || configuredAdminPasswords.includes(cleanPass)) {
         const adminSession = {
           ...DEMO_ADMIN,
           lastLogin: new Date().toISOString(),
@@ -128,11 +137,11 @@ export const AuthProvider = ({ children }) => {
           console.warn('Storage write error', e);
         }
         return { success: true, user: adminSession };
-      } else {
-        const msg = 'अवैध पासवर्ड. कृपया तपासा. / Invalid Admin password.';
-        setError(msg);
-        return { success: false, error: msg };
       }
+
+      const msg = 'अवैध पासवर्ड. कृपया तपासा. / Invalid Admin password.';
+      setError(msg);
+      return { success: false, error: msg };
     }
 
     // Check for Student login

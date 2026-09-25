@@ -1,5 +1,5 @@
-import React from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { AppProvider, useApp } from './context/AppContext';
 import Header from './components/common/Header';
 import Footer from './components/common/Footer';
@@ -60,10 +60,21 @@ const GlobalNotification = () => {
   );
 };
 
+const ScrollToTop = () => {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [pathname]);
+
+  return null;
+};
+
 function App() {
   return (
     <AppProvider>
       <BrowserRouter>
+        <ScrollToTop />
         <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
           <GlobalNotification />
           <Header />

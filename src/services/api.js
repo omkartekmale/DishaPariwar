@@ -1,9 +1,12 @@
 // Disha Pariwar RESTful API Client
-// Connects to Spring Boot backend at /api/v1, with local fallback for preview state
+// Supports a real backend when available and falls back to locally stored demo data.
 
-const BASE_URL = '/api/v1';
+const API_BASE_CANDIDATES = [
+  typeof import.meta !== 'undefined' && import.meta.env ? import.meta.env.VITE_API_BASE_URL : '',
+  '/api/v1',
+  '/api',
+].filter(Boolean);
 
-// Initial seed data for demo/preview if backend is not running yet
 const DEFAULT_APPLICATIONS = [
   {
     referenceNumber: 'DP-2026-8492',
@@ -16,7 +19,7 @@ const DEFAULT_APPLICATIONS = [
     familyIncome: 65000,
     marks10th: 88.40,
     marks12th: 82.60,
-    status: 'UNDER_REVIEW', // UNDER_REVIEW, APPROVED, REJECTED, DOCUMENTS_PENDING
+    status: 'UNDER_REVIEW',
     statusMr: 'छाननी चालू आहे',
     statusEn: 'Under Committee Review',
     appliedAt: '2026-08-12',
@@ -62,12 +65,44 @@ const saveStoredApplications = (apps) => {
   }
 };
 
+const fetchJson = async (path, options = {}) => {
+  const urlPath = path.startsWith('/') ? path : `/${path}`;
+
+  for (const base of API_BASE_CANDIDATES) {
+    try {
+      const response = await fetch(`${base.replace(/\/$/, '')}${urlPath}`, {
+        headers: {
+          Accept: 'application/json',
+          ...(options.headers || {}),
+        },
+        ...options,
+      });
+
+      if (response.ok) {
+        return await response.json();
+      }
+
+      if (response.status === 404) {
+        continue;
+      }
+
+      const errorBody = await response.text();
+      throw new Error(errorBody || 'Request failed');
+    } catch (error) {
+      if (base === API_BASE_CANDIDATES[API_BASE_CANDIDATES.length - 1]) {
+        throw error;
+      }
+    }
+  }
+
+  return null;
+};
+
 export const api = {
-  // Track application by Reference Number and Mobile
   async trackApplication(referenceNumber, mobile) {
     try {
-      const res = await fetch(`${BASE_URL}/applications/track?referenceNumber=${encodeURIComponent(referenceNumber)}&mobile=${encodeURIComponent(mobile)}`);
-      if (res.ok) return await res.json();
+      const response = await fetchJson(`/applications/track?referenceNumber=${encodeURIComponent(referenceNumber)}&mobile=${encodeURIComponent(mobile)}`);
+      if (response && response.success) return response;
     } catch {
       // fallback
     }
@@ -76,8 +111,8 @@ export const api = {
     const cleanRef = referenceNumber.trim().toUpperCase();
     const cleanMobile = mobile.trim();
 
-    const found = apps.find(a => 
-      a.referenceNumber.toUpperCase() === cleanRef && 
+    const found = apps.find((a) =>
+      a.referenceNumber.toUpperCase() === cleanRef &&
       (!cleanMobile || a.mobile.endsWith(cleanMobile.slice(-4)) || a.mobile === cleanMobile)
     );
 
@@ -85,7 +120,6 @@ export const api = {
     return { success: false, message: 'Application not found with given details.' };
   },
 
-  // Submit new scholarship application
   async submitApplication(data) {
     const newRef = `DP-2026-${Math.floor(1000 + Math.random() * 9000)}`;
     const newRecord = {
@@ -95,16 +129,16 @@ export const api = {
       statusMr: 'अर्ज प्राप्त झाला / छाननी प्रलंबित',
       statusEn: 'Received & Pending Verification',
       remarks: 'तुमचा अर्ज यशस्वीरीत्या जमा झाला आहे.',
-      ...data
+      ...data,
     };
 
     try {
-      const res = await fetch(`${BASE_URL}/applications`, {
+      const response = await fetchJson('/applications', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newRecord)
+        body: JSON.stringify(newRecord),
       });
-      if (res.ok) return await res.json();
+      if (response && response.success) return response;
     } catch {
       // fallback
     }
@@ -116,32 +150,30 @@ export const api = {
     return { success: true, data: newRecord, referenceNumber: newRef };
   },
 
-  // Fetch all applications (for Admin dashboard)
   async getApplications() {
     try {
-      const res = await fetch(`${BASE_URL}/admin/applications`);
-      if (res.ok) return await res.json();
+      const response = await fetchJson('/admin/applications');
+      if (response && response.success) return response;
     } catch {
       // fallback
     }
     return { success: true, data: getStoredApplications() };
   },
 
-  // Update application status
   async updateStatus(referenceNumber, newStatus, remarks) {
     try {
-      const res = await fetch(`${BASE_URL}/admin/applications/${referenceNumber}/status`, {
+      const response = await fetchJson(`/admin/applications/${referenceNumber}/status`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: newStatus, remarks })
+        body: JSON.stringify({ status: newStatus, remarks }),
       });
-      if (res.ok) return await res.json();
+      if (response && response.success) return response;
     } catch {
       // fallback
     }
 
     const apps = getStoredApplications();
-    const idx = apps.findIndex(a => a.referenceNumber === referenceNumber);
+    const idx = apps.findIndex((a) => a.referenceNumber === referenceNumber);
     if (idx !== -1) {
       apps[idx].status = newStatus;
       apps[idx].remarks = remarks;
@@ -164,15 +196,14 @@ export const api = {
     return { success: false, message: 'Not found' };
   },
 
-  // Submit contact inquiry
   async submitInquiry(inquiry) {
     try {
-      const res = await fetch(`${BASE_URL}/contact`, {
+      const response = await fetchJson('/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(inquiry)
+        body: JSON.stringify(inquiry),
       });
-      if (res.ok) return await res.json();
+      if (response && response.success) return response;
     } catch {
       // fallback
     }

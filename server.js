@@ -6,6 +6,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
+<<<<<<< Updated upstream
 app.use(express.json());
 
 const PORT = 3000;
@@ -168,12 +169,56 @@ app.post('/api/v1/contact', (req, res) => {
 });
 
 // Serve static assets from dist directory (built React SPA)
+=======
+const PORT = Number(process.env.PORT) || 3000;
+const HOST = process.env.HOST || '0.0.0.0';
+>>>>>>> Stashed changes
 const distPath = path.join(__dirname, 'dist');
-app.use(express.static(distPath));
 
-// SPA fallback: any non-static request routes to dist/index.html
-app.get('*', (req, res) => {
+app.disable('x-powered-by');
+app.use(express.json({ limit: '1mb' }));
+app.use(express.urlencoded({ extended: true }));
+
+app.get('/health', (_req, res) => {
+  res.status(200).json({
+    ok: true,
+    service: 'disha-pariwar',
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'production',
+  });
+});
+
+app.use(
+  express.static(distPath, {
+    maxAge: '1h',
+    etag: true,
+    index: false,
+    setHeaders(res, filePath) {
+      if (filePath.endsWith('.html')) {
+        res.setHeader('Cache-Control', 'no-cache');
+      }
+    },
+  })
+);
+
+app.get('*', (req, res, next) => {
+  if (req.path.startsWith('/api/')) {
+    return next();
+  }
+
+  if (req.path === '/health') {
+    return next();
+  }
+
   res.sendFile(path.join(distPath, 'index.html'));
+});
+
+app.use((err, _req, res, _next) => {
+  console.error('Unhandled application error:', err);
+  res.status(500).json({
+    success: false,
+    message: 'Internal server error',
+  });
 });
 
 app.listen(PORT, HOST, () => {
